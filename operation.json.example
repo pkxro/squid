@@ -1,0 +1,11 @@
+{
+    "environment": "local",
+    "port": "8080",
+    "rateLimit": 10,
+    "rateLimitInterval": 10,
+    "cacheLimitMinutes": 10,
+    "allowedTokens": [
+        "123",
+        "123"
+    ]
+}

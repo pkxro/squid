@@ -77,11 +77,12 @@ func (c *Cache) Get(ctx context.Context, key string, prefix string) (interface{}
 
 // Set sets a value in redis
 func (c *Cache) Set(ctx context.Context, key string, prefix string, value interface{}, exp time.Duration) error {
-	cacheKey := createIdempotencyKey(prefix, key)
 
 	if prefix == "" {
 		prefix = IdempotencyLockKey
 	}
+
+	cacheKey := createIdempotencyKey(prefix, key)
 
 	if exp == 0 {
 		exp = c.ttl

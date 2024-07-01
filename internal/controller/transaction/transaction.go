@@ -69,7 +69,10 @@ func (tm *TransactionManager) SignWithTokenFee(ctx context.Context, req model.Si
 		return nil, errors.New("duplicate tx")
 	}
 
-	tm.cache.Client.Set(ctx, key, "", hash, time.Minute*time.Duration(tm.ocfg.CacheLimitMinutes))
+	err = tm.cache.Client.Set(ctx, key, "", hash, time.Minute*time.Duration(tm.ocfg.CacheLimitMinutes))
+	if err != nil {
+		return nil, err
+	}
 
 	sig, err := validate.ValidateTransaction(
 		ctx, tm.rpcc, req.Transaction, tm.pKey, req.LamportsPerSignature, req.MaxSignatures,

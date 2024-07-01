@@ -34,7 +34,7 @@ func ValidateTransaction(ctx context.Context, rpcc *rpc.Client, transaction *sol
 		return nil, errors.New("too many signatures")
 	}
 
-	signatures, err := transaction.PartialSign(func(key solana.PublicKey) *solana.PrivateKey {
+	signatures, _ := transaction.PartialSign(func(key solana.PublicKey) *solana.PrivateKey {
 		if key.Equals(feePayer.PublicKey()) {
 			return &feePayer
 		}

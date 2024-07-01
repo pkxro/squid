@@ -17,6 +17,14 @@ func (m *Manager) RegisterTransactionsRouter(router *gin.RouterGroup) {
 func (m *Manager) SignWithTokenFee(c *gin.Context) {
 	var req model.SignWithTokenFeeRequest
 	err := c.ShouldBindJSON(&req)
+	if err != nil {
+		c.JSON(
+			common.WrapAPIError(err.Error(),
+				common.SquidBadRequestError,
+				pkg.APIVersion,
+			),
+		)
+	}
 
 	out, err := m.Controller.Tx.SignWithTokenFee(c.Request.Context(), req)
 	if err != nil {

@@ -43,7 +43,12 @@ func main() {
 	}
 
 	// Flush stdout
-	defer zapLogger.Sync()
+	defer func() {
+		err := zapLogger.Sync()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}()
 
 	// Create new instance of redis cache
 	redis, err := redis.NewRedisCache(scfg.CacheUri, scfg.CachePassword, time.Minute*15)

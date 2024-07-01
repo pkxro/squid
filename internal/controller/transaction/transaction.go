@@ -97,11 +97,15 @@ func (tm *TransactionManager) SignWithTokenFee(ctx context.Context, req model.Si
 	// 		return nil, errors.New("duplicate transfer")
 	// 	}
 	// }
+	_, err = tm.cache.Client.Exists(ctx, sig.String(), "transfer_signature_")
+	if err == nil {
+		return nil, errors.New("duplicate transfer")
+	}
 
-	// err = params.Cache.Set(params.Ctx, key, time.Now().UnixNano())
-	// if err != nil {
-	// 	return nil, err
-	// }
+	err = tm.cache.Client.Set(ctx, sig.String(), "transfer_signature_", time.Now().Nanosecond(), 0)
+	if err != nil {
+		return nil, err
+	}
 
 	_, err = tm.rpcc.SimulateRawTransactionWithOpts(ctx, messageBytes, &rpc.SimulateTransactionOpts{
 		Commitment: rpc.CommitmentConfirmed,

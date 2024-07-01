@@ -3,10 +3,12 @@ package main
 import (
 	"fmt"
 	"log"
+	"time"
 
 	// This will automatically load/inject environment variables from a .env file
 	_ "github.com/joho/godotenv/autoload"
 	"github.com/pkxro/squid/internal/cache"
+	"github.com/pkxro/squid/internal/cache/redis"
 	"github.com/pkxro/squid/internal/common"
 	"github.com/pkxro/squid/internal/config"
 	"github.com/pkxro/squid/internal/controller"
@@ -43,14 +45,14 @@ func main() {
 	// Flush stdout
 	defer zapLogger.Sync()
 
-	// // Create new instance of redis cache
-	// redis, err := redis.NewRedisCache(scfg.CacheUri, scfg.CachePassword, time.Minute*15)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
+	// Create new instance of redis cache
+	redis, err := redis.NewRedisCache(scfg.CacheUri, scfg.CachePassword, time.Minute*15)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	// Create new instance of cache manager
-	cacher := cache.NewCacheManager(nil)
+	cacher := cache.NewCacheManager(redis)
 
 	// Create a new instance of a controller manager
 	cm := controller.NewControllerManager(

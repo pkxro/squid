@@ -83,6 +83,10 @@ func (c *Cache) Set(ctx context.Context, key string, prefix string, value interf
 		prefix = IdempotencyLockKey
 	}
 
+	if exp == 0 {
+		exp = c.ttl
+	}
+
 	b, err := json.Marshal(value)
 	if err != nil {
 		return err

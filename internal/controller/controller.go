@@ -30,7 +30,7 @@ func NewControllerManager(
 	// todo, don't panic here, panic earlier
 	keyFromSecret := solana.MustPrivateKeyFromBase58(scfg.FeePayer)
 
-	tx := transaction.NewTransactionManager(logger, rpcc, cache, keyFromSecret, *ocfg)
+	tx := transaction.NewTransactionManager(logger, rpcc, cache, keyFromSecret, ocfg)
 
 	return Manager{
 		Scfg:   scfg,

@@ -1,11 +1,15 @@
 package cache
 
-import "github.com/pkxro/squid/internal/cache/redis"
+import (
+	"time"
+
+	"github.com/pkxro/squid/internal/cache/redis"
+)
 
 // Cache is an interface for a cache client
 type Cache interface {
-	Set(key string, value interface{}) error
-	Get(key string) (interface{}, error)
+	Set(key string, prefix string, value interface{}, exp time.Duration) error
+	Get(key string, prefix string) (interface{}, error)
 	Exists(key string) (bool, error)
 }
 

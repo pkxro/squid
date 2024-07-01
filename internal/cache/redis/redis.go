@@ -36,13 +36,16 @@ func NewRedisCache(uri string, password string, ttl time.Duration) (*Cache, erro
 	}, nil
 }
 
-func createIdempotencyKey(attr string) string {
-	return fmt.Sprintf(IdempotencyLockKey, attr)
+func createIdempotencyKey(prefix string, key string) string {
+	if prefix == "" {
+		prefix = IdempotencyLockKey
+	}
+	return fmt.Sprintf(prefix, key)
 }
 
 // Exists checks if a key exists in Redis
-func (c *Cache) Exists(ctx context.Context, key string) (bool, error) {
-	cacheKey := createIdempotencyKey(key)
+func (c *Cache) Exists(ctx context.Context, key string, prefix string) (bool, error) {
+	cacheKey := createIdempotencyKey(prefix, key)
 
 	ok, err := c.db.Exists(cacheKey).Result()
 	if err != nil {
@@ -53,10 +56,10 @@ func (c *Cache) Exists(ctx context.Context, key string) (bool, error) {
 }
 
 // Get returns a value from redis
-func (c *Cache) Get(ctx context.Context, key string) (interface{}, error) {
+func (c *Cache) Get(ctx context.Context, key string, prefix string) (interface{}, error) {
 	var lock interface{}
 
-	cacheKey := createIdempotencyKey(key)
+	cacheKey := createIdempotencyKey(prefix, key)
 
 	b, err := c.db.Get(cacheKey).Bytes()
 	if err == redis.Nil {
@@ -73,10 +76,14 @@ func (c *Cache) Get(ctx context.Context, key string) (interface{}, error) {
 }
 
 // Set sets a value in redis
-func (c *Cache) Set(ctx context.Context, key string, lock interface{}, exp time.Duration) error {
-	cacheKey := createIdempotencyKey(key)
+func (c *Cache) Set(ctx context.Context, key string, prefix string, value interface{}, exp time.Duration) error {
+	cacheKey := createIdempotencyKey(prefix, key)
 
-	b, err := json.Marshal(lock)
+	if prefix == "" {
+		prefix = IdempotencyLockKey
+	}
+
+	b, err := json.Marshal(value)
 	if err != nil {
 		return err
 	}

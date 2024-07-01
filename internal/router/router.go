@@ -7,8 +7,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/pkxro/squid/internal/common"
 	"github.com/pkxro/squid/internal/controller"
+	"github.com/pkxro/squid/internal/middleware"
 	"github.com/pkxro/squid/internal/model"
-	"github.com/pkxro/squid/middleware"
 	"github.com/pkxro/squid/pkg"
 )
 

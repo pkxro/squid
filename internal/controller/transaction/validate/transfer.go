@@ -70,8 +70,8 @@ func ValidateTransfer(
 }
 
 func validateSystemTransfer(ctx context.Context, rpcc *rpc.Client, transaction *solana.Transaction, xfer *system.Transfer, account *rpc.Account, allowedTokens []model.Token) error {
-	// source := xfer.GetFundingAccount().PublicKey
-	// TODO
+	// fa := xfer.GetFundingAccount()
+	// ra := xfer.GetRecipientAccount()
 
 	return nil
 }
@@ -113,9 +113,9 @@ func validateTokenTransferChecked(ctx context.Context, rpcc *rpc.Client, decTok 
 
 func validateTokenTransfer(ctx context.Context, rpcc *rpc.Client, transaction *solana.Transaction, xfer *token.Transfer, account *rpc.Account, allowedTokens []model.Token) error {
 	amt := *xfer.Amount
-	sourceAcct := xfer.GetSourceAccount()
-	destAcct := xfer.GetDestinationAccount()
-	ownerAcct := xfer.GetOwnerAccount()
+	sa := xfer.GetSourceAccount()
+	da := xfer.GetDestinationAccount()
+	oa := xfer.GetOwnerAccount()
 
 	// Check if the mint of the source account is in the allowed tokens list
 	// transfer doesn't have a min getter, so try on the 2nd pubkey
@@ -130,7 +130,7 @@ func validateTokenTransfer(ctx context.Context, rpcc *rpc.Client, transaction *s
 		return errors.New("mint not in allowed tokens list")
 	}
 
-	acct, err := rpcc.GetAccountInfo(ctx, sourceAcct.PublicKey)
+	acct, err := rpcc.GetAccountInfo(ctx, sa.PublicKey)
 	if err != nil {
 		return err
 	}
@@ -144,7 +144,7 @@ func validateTokenTransfer(ctx context.Context, rpcc *rpc.Client, transaction *s
 		return errors.New("invalid amount")
 	}
 
-	if acct.Value.Owner != ownerAcct.PublicKey {
+	if acct.Value.Owner != oa.PublicKey {
 		return errors.New("invalid owner")
 	}
 
@@ -156,23 +156,23 @@ func validateTokenTransfer(ctx context.Context, rpcc *rpc.Client, transaction *s
 		return errors.New("invalid amount")
 	}
 
-	if sourceAcct.IsSigner {
+	if sa.IsSigner {
 		return errors.New("source is signer")
 	}
 
-	if sourceAcct.IsWritable {
+	if sa.IsWritable {
 		return errors.New("source is not writable")
 	}
 
-	if destAcct.PublicKey == vToken.Account {
+	if da.PublicKey == vToken.Account {
 		return errors.New("invalid destination")
 	}
 
-	if !destAcct.IsWritable {
+	if !da.IsWritable {
 		return errors.New("destination not writable")
 	}
 
-	if destAcct.IsSigner {
+	if da.IsSigner {
 		return errors.New("destination is signer")
 	}
 

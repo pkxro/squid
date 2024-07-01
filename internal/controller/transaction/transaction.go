@@ -22,7 +22,7 @@ type TransactionManager struct {
 	rpcc   *rpc.Client
 	cache  *cache.Manager
 	pKey   solana.PrivateKey
-	ocfg   config.OperationConfig
+	ocfg   *config.OperationConfig
 }
 
 // TransactionConfig holds configuration specific to transactions
@@ -39,7 +39,7 @@ func NewTransactionManager(
 	rpcc *rpc.Client,
 	cache *cache.Manager,
 	pKey solana.PrivateKey,
-	ocfg config.OperationConfig,
+	ocfg *config.OperationConfig,
 ) *TransactionManager {
 	return &TransactionManager{
 		logger: logger,
@@ -60,7 +60,7 @@ func (tm *TransactionManager) SignWithTokenFee(ctx context.Context, req model.Si
 	hash := sha256.Sum256(messageBytes)
 	key := base64.StdEncoding.EncodeToString(hash[:])
 
-	ok, err := tm.cache.Client.Exists(ctx, key)
+	ok, err := tm.cache.Client.Exists(ctx, key, "")
 	if err != nil {
 		return nil, err
 	}
@@ -69,7 +69,7 @@ func (tm *TransactionManager) SignWithTokenFee(ctx context.Context, req model.Si
 		return nil, errors.New("duplicate tx")
 	}
 
-	tm.cache.Client.Set(ctx, key, nil, time.Minute*time.Duration(tm.ocfg.CacheLimitMinutes))
+	tm.cache.Client.Set(ctx, key, "", hash, time.Minute*time.Duration(tm.ocfg.CacheLimitMinutes))
 
 	sig, err := validate.ValidateTransaction(
 		ctx, tm.rpcc, req.Transaction, tm.pKey, req.LamportsPerSignature, req.MaxSignatures,
